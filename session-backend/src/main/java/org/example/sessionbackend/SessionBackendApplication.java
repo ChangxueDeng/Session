@@ -1,13 +1,13 @@
-package org.example.sessionbackdend;
+package org.example.sessionbackend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SessionBackdendApplication {
+public class SessionBackendApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SessionBackdendApplication.class, args);
+        SpringApplication.run(SessionBackendApplication.class, args);
     }
 
 }

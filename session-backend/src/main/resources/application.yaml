@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.97.17.230:3306/study
+    name: root
+    password: 5211
+  security:
+    user:
+      name: admin
+      password: 1234
+      roles:
+        - admin
+        - user
