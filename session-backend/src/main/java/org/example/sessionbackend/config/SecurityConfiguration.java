@@ -15,15 +15,20 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    @Resource
+    DataSource dataSource;
     @Resource
     AuthorizeService authorizeService;
     @Bean
@@ -68,10 +73,22 @@ public class SecurityConfiguration {
                     source.registerCorsConfiguration("/**",configuration);
                     conf.configurationSource(source);
                 })
+                //记住我
+                .rememberMe(conf ->{
+                    conf.rememberMeParameter("remember");
+                    conf.tokenRepository(persistentTokenRepository());
+                    conf.tokenValiditySeconds(3600 * 24); // 一天时间
+
+                })
                 .build();
     }
-
-
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository(){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        //jdbcTokenRepository.setCreateTableOnStartup(true);
+        return jdbcTokenRepository;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
