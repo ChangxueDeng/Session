@@ -2,15 +2,12 @@ package org.example.sessionbackend.config;
 
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.sessionbackend.entity.RestBean;
 import org.example.sessionbackend.service.AuthorizeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +15,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 
@@ -43,6 +42,7 @@ public class SecurityConfiguration {
                 //退出配置
                 .logout(conf ->{
                     conf.logoutUrl("/api/auth/logout");
+                    conf.logoutSuccessHandler(this::onAuthenticationSuccess);
                 })
                 //关闭csrf校验
                 .csrf(conf ->{
@@ -52,6 +52,22 @@ public class SecurityConfiguration {
                     conf.authenticationEntryPoint(this::onAuthenticationFailure);
                 })
                 .userDetailsService(authorizeService)
+                //跨域
+                .cors(conf->{
+                    CorsConfiguration configuration = new CorsConfiguration();
+                    //添加前端站点
+                    configuration.addAllowedOrigin("http://localhost:8080");
+                    //运行携带Cookie
+                    configuration.setAllowCredentials(true);
+                    configuration.addExposedHeader("*");
+                    configuration.addAllowedHeader("*");
+                    configuration.addAllowedMethod("*");
+                    //封装
+                    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                    //注册
+                    source.registerCorsConfiguration("/**",configuration);
+                    conf.configurationSource(source);
+                })
                 .build();
     }
 
@@ -70,10 +86,15 @@ public class SecurityConfiguration {
 //    }
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException{
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(RestBean.success("登录成功").toJson());
+        if(request.getRequestURI().endsWith("/login")){
+            response.getWriter().write(RestBean.success("登录成功").toJson());
+        } else if (request.getRequestURI().endsWith("/logout")) {
+            response.getWriter().write(RestBean.success("退出登录成功").toJson());
+        }
+
     }
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException{
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(RestBean.failure(401).toJson());
+        response.getWriter().write(RestBean.failure(401,exception.getMessage()).toJson());
     }
 }
