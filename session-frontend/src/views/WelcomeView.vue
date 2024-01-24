@@ -8,7 +8,11 @@
       <div style="margin-top: 10px">测试二</div>
     </div>
     <div style="width: 350px; background-color: white;">
-      <router-view></router-view>
+      <router-view v-slot="{ Component}">
+        <transition name="el-zoom-in-center" mode="out-in" >
+              <component :is="Component" />
+        </transition>
+      </router-view>
     </div>
   </div>
 </template>
