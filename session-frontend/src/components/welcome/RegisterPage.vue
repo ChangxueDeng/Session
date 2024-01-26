@@ -1,12 +1,8 @@
 <script setup>
 import {User,Lock,Message,EditPen} from "@element-plus/icons-vue";
 import router from "@/router";
-import {reactive} from "vue";
-const email_data = /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/
-function check_email(){
-  if(!email_data.test(form.email))
-    alert("邮箱不符合格式请重新输入")
-}
+import {reactive, ref} from "vue";
+
 const form = reactive({
   username:'',
   password:'',
@@ -14,6 +10,54 @@ const form = reactive({
   email:'',
   email_code:'',
 })
+const isEmailValid = ref(false)
+const onValid = (prop, isValid) =>{
+  if(prop === 'email'){
+    isEmailValid.value = isValid
+  }
+}
+const validateUsername=(rule,value,callback)=>{
+  if (value ==='')
+    callback(new Error('请输入用户名'))
+  else if(!/[a-zA-Z0-9\u4e00-\u9fa5]+$/.test(value)){
+    callback(new Error('用户名不能包含特殊字符，只能是中文/英文'))}
+  else
+    callback()
+  }
+// const validateEmail = (rule, value, callback)=>{
+//   if(value === '')
+//     callback(new Error('请输入邮箱'))
+//   else if(!/\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/.test(value))
+//     callback(new Error('邮箱格式不合法'))
+//   else callback()
+// }
+const validatePassword = (rule, value, callback) => {
+  if(value === '')
+    callback(new Error('请输入密码'))
+  else if(value !== form.password)
+    callback(new Error('两次密码输入不一致'))
+  else callback()
+}
+  const rules = {
+    username: [
+        {validator:validateUsername,trigger:['blur','change']},
+      {min:3,max:5,message:'用户长度在3到5个字符之间',trigger: ['blur', 'change']},
+
+    ],
+    password: [
+      {required: true, message: '请输入密码', trigger: ['blur', 'change']},
+      {min:6,max:16,message:'密码长度在6到16个字符之间', trigger:['blur','change']}
+    ],
+    password_repeat:[
+      {validator:validatePassword, trigger:['blur','change']}
+    ],
+    email:[
+      {required: true, message: '请输入邮件', trigger: ['blur', 'change']},
+      {type:'email', message: '请输入合法的邮件地址',trigger:['blur', 'change']}
+    ],
+  }
+
+
 </script>
 
 <template>
@@ -24,23 +68,33 @@ const form = reactive({
         <div style="font-size: 14px; color: gray">欢迎进行用户注册，请填写下列内容</div>
       </div>
       <div style=" margin:10px">
-        <el-input v-model="form.username" type="text" placeholder="用户名" style="margin-top: 10px" :prefix-icon="User"></el-input>
-        <el-input v-model="form.password" type="password" placeholder="密码" style="margin-top: 10px; " :prefix-icon="Lock"></el-input>
-        <el-input v-model="form.password_repeat" type="password" placeholder="重复密码" style="margin-top: 10px"></el-input>
+        <el-form :rules="rules" :model="form" @validate="onValid">
+          <el-form-item prop="username">
+            <el-input v-model="form.username" type="text" placeholder="用户名" style="margin-top: 10px" :prefix-icon="User"></el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input v-model="form.password" type="password" placeholder="密码" style="margin-top: 10px; " :prefix-icon="Lock"></el-input>
+          </el-form-item>
+          <el-form-item prop="password_repeat">
+            <el-input v-model="form.password_repeat" type="password" placeholder="重复密码" style="margin-top: 10px" :prefix-icon="Lock"></el-input>
+          </el-form-item>
+          <el-form-item prop="email">
+            <el-input v-model="form.email" type="text" placeholder="电子邮件地址" :prefix-icon="Message"></el-input>
+          </el-form-item>
+          <el-row :gutter="10" style="margin-top: 10px">
+            <el-col :span="16">
+              <el-form-item prop="email_code">
+                <el-input v-model="form.email_code" type="text" :prefix-icon="EditPen" placeholder="验证码"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7">
+              <el-button :disabled="!isEmailValid" type="success">获取验证码</el-button>
+            </el-col>
+          </el-row>
+        </el-form>
       </div>
     </div>
     <div style="margin: 10px; ">
-      <el-input v-model="form.email" type="text" placeholder="电子邮件地址" :prefix-icon="Message" @blur="check_email()"></el-input>
-      <div style="width: 100%;">
-        <el-row :gutter="10" style="margin-top: 10px">
-          <el-col :span="16">
-            <el-input v-model="form.email_code" type="text" :prefix-icon="EditPen" placeholder="验证码"></el-input>
-          </el-col>
-          <el-col :span="7">
-            <el-button type="success">获取验证码</el-button>
-          </el-col>
-        </el-row>
-      </div>
       <div style="margin-top: 50px; text-align: center" >
         <el-button type="primary" plain style="width: 270px;">立即注册</el-button>
       </div>
