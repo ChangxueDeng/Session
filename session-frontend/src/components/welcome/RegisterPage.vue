@@ -2,6 +2,8 @@
 import {User,Lock,Message,EditPen} from "@element-plus/icons-vue";
 import router from "@/router";
 import {reactive, ref} from "vue";
+import {ElMessage} from "element-plus";
+import {post} from "@/net";
 
 const form = reactive({
   username:'',
@@ -55,9 +57,35 @@ const validatePassword = (rule, value, callback) => {
       {required: true, message: '请输入邮件', trigger: ['blur', 'change']},
       {type:'email', message: '请输入合法的邮件地址',trigger:['blur', 'change']}
     ],
+    email_code:[
+      {required:true, message:'请输入验证码', trigger:'blur'}
+    ]
   }
+const formRef = ref()
+const register = () => {
+  formRef.value.validate((isValid) =>{
+    if(!isValid) {
+      ElMessage.warning('请完整填写信息')
+    }
+  })
+}
 
-
+const validateEmail = () =>{
+  post('api/auth/valid-email', {
+    email: form.email
+  },(message) => {
+    ElMessage.success(message)
+  })
+}
+// const register = () =>{
+//   formRef.value.validate((isValid) =>{
+//     if(isValid){
+//       ElMessage.warning('yes')
+//     }else {
+//       ElMessage.warning('请完整填写信息')
+//     }
+//   })
+// }
 </script>
 
 <template>
@@ -68,7 +96,7 @@ const validatePassword = (rule, value, callback) => {
         <div style="font-size: 14px; color: gray">欢迎进行用户注册，请填写下列内容</div>
       </div>
       <div style=" margin:10px">
-        <el-form :rules="rules" :model="form" @validate="onValid">
+        <el-form :rules="rules" :model="form" @validate="onValid" ref="formRef">
           <el-form-item prop="username">
             <el-input v-model="form.username" type="text" placeholder="用户名" style="margin-top: 10px" :prefix-icon="User"></el-input>
           </el-form-item>
@@ -88,7 +116,7 @@ const validatePassword = (rule, value, callback) => {
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-button :disabled="!isEmailValid" type="success">获取验证码</el-button>
+              <el-button :disabled="!isEmailValid" type="success" @click="validateEmail()">获取验证码</el-button>
             </el-col>
           </el-row>
         </el-form>
@@ -96,7 +124,7 @@ const validatePassword = (rule, value, callback) => {
     </div>
     <div style="margin: 10px; ">
       <div style="margin-top: 50px; text-align: center" >
-        <el-button type="primary" plain style="width: 270px;">立即注册</el-button>
+        <el-button type="primary" plain style="width: 270px;" @click="register()">立即注册</el-button>
       </div>
       <div style="margin-top: 20px;text-align: center; font-size: 15px">
         <span style="color: gray">已有账号?</span>

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.sessionbackend.entity.RestBean;
 import org.example.sessionbackend.service.AuthorizeService;
+import org.example.sessionbackend.service.impl.AuthorizeServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -30,12 +35,13 @@ public class SecurityConfiguration {
     @Resource
     DataSource dataSource;
     @Resource
-    AuthorizeService authorizeService;
+    AuthorizeService authorizeServiceImpl;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 //管理安全权限
                 .authorizeHttpRequests(conf->{
+                    conf.requestMatchers("/api/auth/**").permitAll();
                     conf.anyRequest().authenticated();
                 })
                 //登录配置
@@ -56,7 +62,7 @@ public class SecurityConfiguration {
                 .exceptionHandling(conf ->{
                     conf.authenticationEntryPoint(this::onAuthenticationFailure);
                 })
-                .userDetailsService(authorizeService)
+                .userDetailsService(authorizeServiceImpl)
                 //跨域
                 .cors(conf->{
                     CorsConfiguration configuration = new CorsConfiguration();
