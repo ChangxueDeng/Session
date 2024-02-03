@@ -18,6 +18,7 @@ const onValid = (prop, isValid) =>{
     isEmailValid.value = isValid
   }
 }
+const coldTime = ref(0)
 const validateUsername=(rule,value,callback)=>{
   if (value ==='')
     callback(new Error('请输入用户名'))
@@ -66,6 +67,16 @@ const register = () => {
   formRef.value.validate((isValid) =>{
     if(!isValid) {
       ElMessage.warning('请完整填写信息')
+    }else {
+      post("api/auth/register", {
+        username: form.username,
+        password: form.password,
+        email: form.email,
+        email_code: form.email_code
+      },(message)=>{
+        ElMessage.success(message)
+        router.push("/")
+      })
     }
   })
 }
@@ -75,6 +86,8 @@ const validateEmail = () =>{
     email: form.email
   },(message) => {
     ElMessage.success(message)
+    coldTime.value = 60;
+    setInterval(()=>coldTime.value = coldTime.value - 1, 1000)
   })
 }
 // const register = () =>{
@@ -98,13 +111,13 @@ const validateEmail = () =>{
       <div style=" margin:10px">
         <el-form :rules="rules" :model="form" @validate="onValid" ref="formRef">
           <el-form-item prop="username">
-            <el-input v-model="form.username" type="text" placeholder="用户名" style="margin-top: 10px" :prefix-icon="User"></el-input>
+            <el-input v-model="form.username" type="text" :maxlength = "5" placeholder="用户名" style="margin-top: 10px" :prefix-icon="User"></el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="form.password" type="password" placeholder="密码" style="margin-top: 10px; " :prefix-icon="Lock"></el-input>
+            <el-input v-model="form.password" type="password" :maxlength="16" placeholder="密码" style="margin-top: 10px; " :prefix-icon="Lock"></el-input>
           </el-form-item>
           <el-form-item prop="password_repeat">
-            <el-input v-model="form.password_repeat" type="password" placeholder="重复密码" style="margin-top: 10px" :prefix-icon="Lock"></el-input>
+            <el-input v-model="form.password_repeat" type="password" :maxlength="16" placeholder="重复密码" style="margin-top: 10px" :prefix-icon="Lock"></el-input>
           </el-form-item>
           <el-form-item prop="email">
             <el-input v-model="form.email" type="text" placeholder="电子邮件地址" :prefix-icon="Message"></el-input>
@@ -112,11 +125,13 @@ const validateEmail = () =>{
           <el-row :gutter="10" style="margin-top: 10px">
             <el-col :span="16">
               <el-form-item prop="email_code">
-                <el-input v-model="form.email_code" type="text" :prefix-icon="EditPen" placeholder="验证码"></el-input>
+                <el-input v-model="form.email_code" type="text" :maxlength="6" :prefix-icon="EditPen" placeholder="验证码"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-button :disabled="!isEmailValid" type="success" @click="validateEmail()">获取验证码</el-button>
+              <el-button :disabled="!isEmailValid || coldTime > 0" type="success" @click="validateEmail()">
+                {{coldTime > 0 ? '请稍后' + coldTime + '秒' : '获取验证码'}}
+              </el-button>
             </el-col>
           </el-row>
         </el-form>
