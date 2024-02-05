@@ -16,6 +16,11 @@ const routes = [
         path: '/register',
         name: 'welcome-register',
         component:() => import('@/components/welcome/RegisterPage.vue')
+      },
+      {
+        path:'/forget',
+        name: 'forget',
+        component:()=>import('@/components/welcome/ForgetPage.vue')
       }
     ]
   },
