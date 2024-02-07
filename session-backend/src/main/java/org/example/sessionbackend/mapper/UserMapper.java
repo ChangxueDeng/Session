@@ -1,11 +1,7 @@
 package org.example.sessionbackend.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.example.sessionbackend.entity.Account;
-import org.springframework.security.access.method.P;
 
 @Mapper
 public interface UserMapper {
@@ -14,4 +10,7 @@ public interface UserMapper {
 
     @Insert("INSERT INTO account(username, password, email) values(#{username}, #{password}, #{email})")
     int createAccount(@Param("username") String username, @Param("password") String password, @Param("email") String email);
+
+    @Update("update account set password=#{password} where email = #{email}")
+    int resetPasswordByEmail(@Param("password") String password, @Param("email") String email);
 }
