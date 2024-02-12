@@ -1,7 +1,7 @@
 package org.example.sessionbackend.service.impl;
 
 import jakarta.annotation.Resource;
-import org.example.sessionbackend.entity.Account;
+import org.example.sessionbackend.entity.auth.Account;
 import org.example.sessionbackend.mapper.UserMapper;
 import org.example.sessionbackend.service.AuthorizeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +50,12 @@ public class AuthorizeServiceImpl implements AuthorizeService {
 
     @Override
     public String sendValidateEmail(String email, String sessionId, boolean hasAccount) {
-        /**
-         * 1. 生成验证码
-         * 2. 邮箱与验证码存入redis(过期时间3分钟，重发邮件，剩余时间少于2分钟)
-         * 3.发送
-         * 4. 发送失败，删除redis插入的数据
-         * 5. 注册时取出
+        /*
+          1. 生成验证码
+          2. 邮箱与验证码存入redis(过期时间3分钟，重发邮件，剩余时间少于2分钟)
+          3.发送
+          4. 发送失败，删除redis插入的数据
+          5. 注册时取出
          */
         //查询redis,避免频繁请求
         String key = "email:" + email + ":" + sessionId + ":" + hasAccount;

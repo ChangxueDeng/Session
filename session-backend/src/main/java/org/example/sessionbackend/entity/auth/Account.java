@@ -1,4 +1,4 @@
-package org.example.sessionbackend.entity;
+package org.example.sessionbackend.entity.auth;
 
 import lombok.Data;
 

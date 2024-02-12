@@ -3,7 +3,6 @@ package org.example.sessionbackend.controller;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Pattern;
-import org.apache.ibatis.annotations.Param;
 import org.example.sessionbackend.entity.RestBean;
 import org.example.sessionbackend.service.AuthorizeService;
 import org.hibernate.validator.constraints.Length;

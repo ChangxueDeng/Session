@@ -1,7 +1,7 @@
 package org.example.sessionbackend.mapper;
 
 import org.apache.ibatis.annotations.*;
-import org.example.sessionbackend.entity.Account;
+import org.example.sessionbackend.entity.auth.Account;
 
 @Mapper
 public interface UserMapper {
