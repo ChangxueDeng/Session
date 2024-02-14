@@ -40,13 +40,15 @@ const steps = ref(0)
 const coldTime = ref(0);
 
 const validEmail = () => {
+  coldTime.value = 60;
   post('api/auth/valid-reset-email', {
     email: form.email,
   }, (message) => {
     ElMessage.success(message)
-    coldTime.value = 60;
     setInterval(() => coldTime.value--, 1000)
-  })
+  },(message)=>{
+    ElMessage.warning(message)
+    coldTime.value = 0})
 }
 const startRef = ref()
 const resetRef = ref()
@@ -55,7 +57,6 @@ const startReset = () => {
     if (!isValid) {
       ElMessage.warning('请完整填写信息')
     } else {
-
       post('api/auth/start-reset', {
         email: form.email,
         email_code: form.email_code,

@@ -82,12 +82,15 @@ const register = () => {
 }
 
 const validateEmail = () =>{
+  coldTime.value = 60;
   post('api/auth/valid-register-email', {
     email: form.email
   },(message) => {
     ElMessage.success(message)
-    coldTime.value = 60;
     setInterval(()=>coldTime.value = coldTime.value - 1, 1000)
+  },(message)=>{
+    ElMessage.warning(message)
+    coldTime.value = 0;
   })
 }
 // const register = () =>{

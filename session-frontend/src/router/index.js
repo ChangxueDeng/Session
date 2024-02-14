@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import {useStore} from "@/stores";
 
 const routes = [
   {
@@ -36,4 +37,16 @@ const router = createRouter({
   routes,
 })
 
+router.beforeEach((to, from, next)=>{
+  const store = useStore();
+  if(store.auth.user !== null && to.name.startsWith('Welcome-')){
+    next('/index')
+  }else if(store.auth.user === null && to.fullPath.startsWith('/index')){
+    next('/')
+  }else if(to.matched.length === 0){
+    next('/index')
+  } else {
+    next()
+  }
+})
 export default router

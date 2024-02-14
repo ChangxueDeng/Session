@@ -2,9 +2,12 @@
 import {get} from "@/net"
 import {ElMessage} from "element-plus";
 import router from "@/router";
+import {useStore} from "@/stores";
 const logout = () =>{
   get('/api/auth/logout', (message) => {
     ElMessage.success(message)
+    const store = useStore()
+    store.auth.user = null;
     router.push('/')
   })
 }
